@@ -1,5 +1,6 @@
 - hosts: local
-  become: yes  # Run all tasks with sudo
+  become: yes             # run tasks with sudo
+  become_method: sudo
   vars:
     container_name: scientific_calculator
     image: gaganreddy508/scientific-calculator:latest

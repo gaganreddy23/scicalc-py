@@ -22,7 +22,6 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                // Run automated tests only
                 sh 'docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} pytest /app/test_calculator.py'
             }
         }
@@ -34,18 +33,14 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy') {
             steps {
+                // Use sudo to allow Ansible to run privileged tasks
                 sh '''
-                    ansible-playbook -i inventory.ini deploy.yml
+                    sudo ansible-playbook -i inventory.ini deploy.yml
                 '''
             }
         }
-
-
-
-
     }
-
-
 }
