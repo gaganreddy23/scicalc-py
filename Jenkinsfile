@@ -42,10 +42,10 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo 'Deployment step: run container on your server if needed'
-            }
-        }
+        // stage('Deploy') {
+        //     steps {
+        //         echo 'Deployment step: run container on your server if needed'
+        //     }
+        // }
     }
 }
