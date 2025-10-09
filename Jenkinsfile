@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub') // Jenkins ID for DockerHub
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         IMAGE_NAME = 'gaganreddy508/scientific-calculator'
         IMAGE_TAG = 'latest'
     }
@@ -20,12 +20,9 @@ pipeline {
             }
         }
 
-        stage('Run Calculator & Tests') {
+        stage('Run Tests') {
             steps {
-                // Run calculator
-                sh 'docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python /app/calculator.py'
-
-                // Run tests
+                // Run automated tests only
                 sh 'docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} pytest /app/test_calculator.py'
             }
         }
