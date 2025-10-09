@@ -11,9 +11,12 @@
         state: present
       when: ansible_os_family == "Debian"
 
-    - name: Install docker Python SDK
-      pip:
-        name: docker
+    - name: Ensure python3-docker is installed (system package)
+      apt:
+        name: python3-docker
+        state: present
+        update_cache: yes
+
 
     - name: Pull the image from Docker Hub
       community.docker.docker_image:
