@@ -34,18 +34,21 @@ pipeline {
                 }
             }
         }
+        stage('Deploy') {
+            steps {
+                sh '''
+                    ansible-galaxy collection install community.docker
+                    ansible-playbook -i ansible/inventory.ini ansible/deploy.yml \
+                        -e image=gaganreddy508/scientific-calculator:latest \
+                        -e container_name=scientific_calculator \
+                        -e port_host=8000 \
+                        -e port_container=8000
+                '''
+            }
+        }
+
+
     }
 
-    post {
-        always {
-            echo "Cleaning up Docker images..."
-            sh 'docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'
-        }
-        success {
-            echo "Pipeline succeeded!"
-        }
-        failure {
-            echo "Pipeline failed!"
-        }
-    }
+
 }

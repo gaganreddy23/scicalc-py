@@ -1,11 +1,39 @@
-version: '3.9'
-
-services:
-  scientific_calculator:
-    image: your_dockerhub_username/scientific-calculator:latest   # 👈 update username
+- hosts: local
+  become: false
+  vars:
     container_name: scientific_calculator
-    restart: always
-    ports:
-      - "8000:8000"
-    working_dir: /app
-    command: ["python", "-m", "app.main"]
+    image: gaganreddy508/scientific-calculator:latest
+    port_host: 8000
+    port_container: 8000
+
+  tasks:
+    - name: Ensure python3-pip is present (for docker SDK)
+      apt:
+        name: python3-pip
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install docker Python SDK
+      pip:
+        name: docker
+
+    - name: Pull the image from Docker Hub
+      community.docker.docker_image:
+        name: "{{ image }}"
+        source: pull
+
+    - name: Stop and remove old container if exists
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+        force_kill: yes
+        keep_volumes: no
+
+    - name: Run the new container and keep it alive
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image }}"
+        state: started
+        ports:
+          - "{{ port_host }}:{{ port_container }}"
+        command: ["python", "-m", "app.main"]
