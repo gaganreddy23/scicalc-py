@@ -1,6 +1,5 @@
 - hosts: local
   become: yes
-  become_method: sudo
   vars:
     container_name: scientific_calculator
     image: gaganreddy508/scientific-calculator:latest
@@ -37,4 +36,4 @@
         state: started
         ports:
           - "8000:8000"
-        command: "python -m app.main"
+        command: "bash -c 'cd /app && python3 calculator.py'"
