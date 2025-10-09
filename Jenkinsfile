@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        SUDO_PASS = credentials('SUDO_PASS')
         IMAGE_NAME = 'gaganreddy508/scientific-calculator'
         IMAGE_TAG = 'latest'
     }
@@ -36,11 +37,12 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Use sudo to allow Ansible to run privileged tasks
-                sh '''
-                    sudo ansible-playbook -i inventory.ini deploy.yml
-                '''
+                // Pass sudo password from Jenkins secret to sudo using -S
+                sh """
+                    echo ${SUDO_PASS} | sudo -S ansible-playbook -i inventory.ini deploy.yml
+                """
             }
         }
+
     }
 }

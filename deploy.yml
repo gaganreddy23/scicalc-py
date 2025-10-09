@@ -1,19 +1,18 @@
 - hosts: local
-  become: yes             # run tasks with sudo
+  become: yes
   become_method: sudo
   vars:
     container_name: scientific_calculator
     image: gaganreddy508/scientific-calculator:latest
 
   tasks:
-    - name: Ensure python3-pip is present (for docker SDK)
+    - name: Ensure python3-pip is present
       apt:
         name: python3-pip
         state: present
         update_cache: yes
-      when: ansible_os_family == "Debian"
 
-    - name: Ensure python3-docker is installed (system package)
+    - name: Ensure python3-docker is installed
       apt:
         name: python3-docker
         state: present
