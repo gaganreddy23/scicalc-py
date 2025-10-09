@@ -10,4 +10,4 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt pytest
 
 # Default command: run your calculator.py
-CMD ["python", "app/calculator.py"]
+CMD ["python", "app/calculator.py"] 
