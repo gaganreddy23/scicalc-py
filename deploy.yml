@@ -1,5 +1,5 @@
 - hosts: local
-  become: false
+  become: yes  # Run all tasks with sudo
   vars:
     container_name: scientific_calculator
     image: gaganreddy508/scientific-calculator:latest
@@ -9,6 +9,7 @@
       apt:
         name: python3-pip
         state: present
+        update_cache: yes
       when: ansible_os_family == "Debian"
 
     - name: Ensure python3-docker is installed (system package)
@@ -16,7 +17,6 @@
         name: python3-docker
         state: present
         update_cache: yes
-
 
     - name: Pull the image from Docker Hub
       community.docker.docker_image:
