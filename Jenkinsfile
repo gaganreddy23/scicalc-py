@@ -37,15 +37,11 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    ansible-galaxy collection install community.docker
-                    ansible-playbook -i ansible/inventory.ini ansible/deploy.yml \
-                        -e image=gaganreddy508/scientific-calculator:latest \
-                        -e container_name=scientific_calculator \
-                        -e port_host=8000 \
-                        -e port_container=8000
+                    ansible-playbook -i ansible/inventory.ini ansible/deploy.yml
                 '''
             }
         }
+
 
 
     }

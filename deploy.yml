@@ -3,8 +3,6 @@
   vars:
     container_name: scientific_calculator
     image: gaganreddy508/scientific-calculator:latest
-    port_host: 8000
-    port_container: 8000
 
   tasks:
     - name: Ensure python3-pip is present (for docker SDK)
@@ -35,5 +33,5 @@
         image: "{{ image }}"
         state: started
         ports:
-          - "{{ port_host }}:{{ port_container }}"
-        command: ["python", "-m", "app.main"]
+          - "8000:8000"
+        command: "python -m app.main"
