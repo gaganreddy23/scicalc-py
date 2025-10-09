@@ -36,4 +36,4 @@
         state: started
         ports:
           - "8000:8000"
-        command: "bash -c 'cd /app && python3 calculator.py'"
+        command: "tail -f /dev/null"
