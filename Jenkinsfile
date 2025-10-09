@@ -2,54 +2,50 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "scientific-calculator"
-        DOCKERHUB_USER = "your_dockerhub_username"   // 👈 replace with yours
+        DOCKERHUB_CREDENTIALS = 'dockerhub-creds' // Jenkins credentials ID
+        IMAGE_NAME = 'gaganreddy508/scientific-calculator'
+        IMAGE_TAG = 'latest'
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/gaganreddy23/scicalc-py.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                script {
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                }
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'docker run --rm $IMAGE_NAME'
+                script {
+                    docker.image("${IMAGE_NAME}:${IMAGE_TAG}").inside {
+                        sh 'pytest --maxfail=1 --disable-warnings -q'
+                    }
+                }
             }
         }
 
         stage('Push to Docker Hub') {
-            when {
-                expression { env.BRANCH_NAME == 'main' }
-            }
             steps {
-                withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
-                    sh '''
-                    echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
-                    docker tag $IMAGE_NAME $DOCKERHUB_USER/$IMAGE_NAME:latest
-                    docker push $DOCKERHUB_USER/$IMAGE_NAME:latest
-                    '''
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                    }
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'docker-compose -f deploy.yml up -d'
+                echo 'Deployment step: run container on your server if needed'
             }
-        }
-    }
-
-    post {
-        always {
-            sh 'docker system prune -f'
         }
     }
 }
