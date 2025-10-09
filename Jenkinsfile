@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub' // Jenkins credentials ID for Docker Hub
+        DOCKERHUB_CREDENTIALS = 'dockerhub' // your Jenkins Docker Hub credential ID
         IMAGE_NAME = 'gaganreddy508/scientific-calculator'
         IMAGE_TAG = 'latest'
     }
@@ -16,31 +16,24 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Build the Docker image
-                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
-                }
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
             }
         }
 
         stage('Run Calculator & Tests') {
             steps {
-                script {
-                    // Run calculator.py and pytest inside the Docker container
-                    docker.image("${IMAGE_NAME}:${IMAGE_TAG}").inside {
-                        sh 'python app/calculator.py'  // run your calculator script
-                        sh 'pytest --maxfail=1 --disable-warnings -q'  // run tests
-                    }
-                }
+                sh "docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python /app/calculator.py"
+                sh "docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} pytest --maxfail=1 --disable-warnings -q"
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
-                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
-                    }
+                withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                    sh """
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
                 }
             }
         }
