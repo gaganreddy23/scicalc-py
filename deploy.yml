@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  scientific_calculator:
+    image: your_dockerhub_username/scientific-calculator:latest   # 👈 update username
+    container_name: scientific_calculator
+    restart: always
+    ports:
+      - "8000:8000"
+    working_dir: /app
+    command: ["python", "-m", "app.main"]
