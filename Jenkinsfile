@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub') // your Jenkins DockerHub credentials ID
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub') // Jenkins ID for DockerHub
         IMAGE_NAME = 'gaganreddy508/scientific-calculator'
         IMAGE_TAG = 'latest'
     }
 
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
                 git url: 'https://github.com/gaganreddy23/scicalc-py.git', branch: 'main'
             }
@@ -16,24 +16,24 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
             }
         }
 
         stage('Run Calculator & Tests') {
             steps {
-                // Run the main calculator script
-                sh "docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python /app/calculator.py"
+                // Run calculator
+                sh 'docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python /app/calculator.py'
 
-                // Run the tests
-                sh "docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} pytest /app/test_calculator.py"
+                // Run tests
+                sh 'docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} pytest /app/test_calculator.py'
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
                 withDockerRegistry([credentialsId: "${DOCKERHUB_CREDENTIALS}", url: '']) {
-                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh 'docker push ${IMAGE_NAME}:${IMAGE_TAG}'
                 }
             }
         }
@@ -42,7 +42,7 @@ pipeline {
     post {
         always {
             echo "Cleaning up Docker images..."
-            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+            sh 'docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'
         }
         success {
             echo "Pipeline succeeded!"
