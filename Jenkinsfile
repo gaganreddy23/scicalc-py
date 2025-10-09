@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub-creds' // Jenkins credentials ID
+        DOCKERHUB_CREDENTIALS = 'dockerhub' // Jenkins credentials ID for Docker Hub
         IMAGE_NAME = 'gaganreddy508/scientific-calculator'
         IMAGE_TAG = 'latest'
     }
@@ -17,16 +17,19 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Build the Docker image
                     docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                 }
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Calculator & Tests') {
             steps {
                 script {
+                    // Run calculator.py and pytest inside the Docker container
                     docker.image("${IMAGE_NAME}:${IMAGE_TAG}").inside {
-                        sh 'pytest --maxfail=1 --disable-warnings -q'
+                        sh 'python app/calculator.py'  // run your calculator script
+                        sh 'pytest --maxfail=1 --disable-warnings -q'  // run tests
                     }
                 }
             }
@@ -35,17 +38,11 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
                         docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
             }
         }
-
-        // stage('Deploy') {
-        //     steps {
-        //         echo 'Deployment step: run container on your server if needed'
-        //     }
-        // }
     }
 }
