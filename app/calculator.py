@@ -29,7 +29,7 @@ def menu():
         print("\n1) Square root √x")
         print("2) Factorial n!")
         print("3) Natural logarithm ln(x)")
-        print("4) Power x^a")
+        print("4) Power x^b")
         print("5) Exit")
         choice = input("Enter choice: ").strip()
         if choice == "1":
